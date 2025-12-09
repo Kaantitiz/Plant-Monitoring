@@ -1,0 +1,15 @@
+{
+  "name": "Bitki Yaşamı - Plant Monitoring",
+  "short_name": "Bitki Yaşamı",
+  "description": "Bitki bakımı için akıllı sulama, nem ve sıcaklık kontrol sistemi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#4CAF50",
+  "theme_color": "#4CAF50",
+  "orientation": "portrait-primary",
+  "icons": [],
+  "categories": ["productivity", "utilities", "lifestyle"],
+  "lang": "tr",
+  "dir": "ltr",
+  "version": "1.0.2"
+}

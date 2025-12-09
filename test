@@ -1,0 +1,133 @@
+SELECT
+    t1.entity_name as cariad,
+    t1.entity_code as carikod,
+    t1.must_tem as musteri_temsilcisi,
+    t1.create_date as olusturulma_tarihi,
+    t1.city_name as sehir,
+    t1.town_name as ilce,
+    
+    t1.ocak_2025,
+    t1.subat_2025,
+    t1.mart_2025,
+    t1.nisan_2025,
+    t1.mayis_2025,
+    t1.haziran_2025,
+    t1.temmuz_2025,
+    t1.agustos_2025,
+    t1.eylul_2025,
+    t1.ekim_2025,
+    t1.kasim_2025,
+    t1.aralik_2025,
+    t1.toplam_2025,
+    (CASE WHEN t1.ocak_2025 > '@AktifS@' THEN t1.ocak_2025 ELSE 0 END) as ocak_2025_aktif,
+    (CASE WHEN t1.subat_2025 > '@AktifS@' THEN t1.subat_2025 ELSE 0 END) as subat_2025_aktif,
+    (CASE WHEN t1.mart_2025 > '@AktifS@' THEN t1.mart_2025 ELSE 0 END) as mart_2025_aktif,
+    (CASE WHEN t1.nisan_2025 > '@AktifS@' THEN t1.nisan_2025 ELSE 0 END) as nisan_2025_aktif,
+    (CASE WHEN t1.mayis_2025 > '@AktifS@' THEN t1.mayis_2025 ELSE 0 END) as mayis_2025_aktif,
+    (CASE WHEN t1.haziran_2025 > '@AktifS@' THEN t1.haziran_2025 ELSE 0 END) as haziran_2025_aktif,
+    (CASE WHEN t1.temmuz_2025 > '@AktifS@' THEN t1.temmuz_2025 ELSE 0 END) as temmuz_2025_aktif,
+    (CASE WHEN t1.agustos_2025 > '@AktifS@' THEN t1.agustos_2025 ELSE 0 END) as agustos_2025_aktif,
+    (CASE WHEN t1.eylul_2025 > '@AktifS@' THEN t1.eylul_2025 ELSE 0 END) as eylul_2025_aktif,
+    (CASE WHEN t1.ekim_2025 > '@AktifS@' THEN t1.ekim_2025 ELSE 0 END) as ekim_2025_aktif,
+    (CASE WHEN t1.kasim_2025 > '@AktifS@' THEN t1.kasim_2025 ELSE 0 END) as kasim_2025_aktif,
+    (CASE WHEN t1.aralik_2025 > '@AktifS@' THEN t1.aralik_2025 ELSE 0 END) as aralik_2025_aktif,
+    
+    t1.ocak_2024,
+    t1.subat_2024,
+    t1.mart_2024,
+    t1.nisan_2024,
+    t1.mayis_2024,
+    t1.haziran_2024,
+    t1.temmuz_2024,
+    t1.agustos_2024,
+    t1.eylul_2024,
+    t1.ekim_2024,
+    t1.kasim_2024,
+    t1.aralik_2024,
+    t1.toplam_2024,
+    --2024 Aktif
+    (CASE WHEN t1.ocak_2024 > '@AktifS@' THEN t1.ocak_2024 ELSE 0 END) as ocak_2024_aktif,
+    (CASE WHEN t1.subat_2024 > '@AktifS@' THEN t1.subat_2024 ELSE 0 END) as subat_2024_aktif,
+    (CASE WHEN t1.mart_2024 > '@AktifS@' THEN t1.mart_2024 ELSE 0 END) as mart_2024_aktif,
+    (CASE WHEN t1.nisan_2024 > '@AktifS@' THEN t1.nisan_2024 ELSE 0 END) as nisan_2024_aktif,
+    (CASE WHEN t1.mayis_2024 > '@AktifS@' THEN t1.mayis_2024 ELSE 0 END) as mayis_2024_aktif,
+    (CASE WHEN t1.haziran_2024 > '@AktifS@' THEN t1.haziran_2024 ELSE 0 END) as haziran_2024_aktif,
+    (CASE WHEN t1.temmuz_2024 > '@AktifS@' THEN t1.temmuz_2024 ELSE 0 END) as temmuz_2024_aktif,
+    (CASE WHEN t1.agustos_2024 > '@AktifS@' THEN t1.agustos_2024 ELSE 0 END) as agustos_2024_aktif,
+    (CASE WHEN t1.eylul_2024 > '@AktifS@' THEN t1.eylul_2024 ELSE 0 END) as eylul_2024_aktif,
+    (CASE WHEN t1.ekim_2024 > '@AktifS@' THEN t1.ekim_2024 ELSE 0 END) as ekim_2024_aktif,
+    (CASE WHEN t1.kasim_2024 > '@AktifS@' THEN t1.kasim_2024 ELSE 0 END) as kasim_2024_aktif,
+    (CASE WHEN t1.aralik_2024 > '@AktifS@' THEN t1.aralik_2024 ELSE 0 END) as aralik_2024_aktif
+        
+FROM (
+    SELECT 
+        fe.entity_name, 
+        fe.entity_code, 
+        fsp.sales_person_code must_tem, 
+        gc.city_name, 
+        tw.town_name, 
+        fce.create_date,
+        
+        -- 2024 Yılı
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.01.2024' AND '31.01.2024' THEN invm.amt_with_disc ELSE 0 END) as ocak_2024,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.02.2024' AND '28.02.2024' THEN invm.amt_with_disc ELSE 0 END) as subat_2024,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.03.2024' AND '31.03.2024' THEN invm.amt_with_disc ELSE 0 END) as mart_2024,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.04.2024' AND '30.04.2024' THEN invm.amt_with_disc ELSE 0 END) as nisan_2024,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.05.2024' AND '31.05.2024' THEN invm.amt_with_disc ELSE 0 END) as mayis_2024,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.06.2024' AND '30.06.2024' THEN invm.amt_with_disc ELSE 0 END) as haziran_2024,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.07.2024' AND '31.07.2024' THEN invm.amt_with_disc ELSE 0 END) as temmuz_2024,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.08.2024' AND '31.08.2024' THEN invm.amt_with_disc ELSE 0 END) as agustos_2024,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.09.2024' AND '30.09.2024' THEN invm.amt_with_disc ELSE 0 END) as eylul_2024,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.10.2024' AND '31.10.2024' THEN invm.amt_with_disc ELSE 0 END) as ekim_2024,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.11.2024' AND '30.11.2024' THEN invm.amt_with_disc ELSE 0 END) as kasim_2024,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.12.2024' AND '31.12.2024' THEN invm.amt_with_disc ELSE 0 END) as aralik_2024,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.01.2024' AND '31.12.2024' THEN invm.amt_with_disc ELSE 0 END) as toplam_2024,
+        
+        -- 2025 Yılı
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.01.2025' AND '31.01.2025' THEN invm.amt_with_disc ELSE 0 END) as ocak_2025,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.02.2025' AND '28.02.2025' THEN invm.amt_with_disc ELSE 0 END) as subat_2025,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.03.2025' AND '31.03.2025' THEN invm.amt_with_disc ELSE 0 END) as mart_2025,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.04.2025' AND '30.04.2025' THEN invm.amt_with_disc ELSE 0 END) as nisan_2025,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.05.2025' AND '31.05.2025' THEN invm.amt_with_disc ELSE 0 END) as mayis_2025,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.06.2025' AND '30.06.2025' THEN invm.amt_with_disc ELSE 0 END) as haziran_2025,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.07.2025' AND '31.07.2025' THEN invm.amt_with_disc ELSE 0 END) as temmuz_2025,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.08.2025' AND '31.08.2025' THEN invm.amt_with_disc ELSE 0 END) as agustos_2025,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.09.2025' AND '30.09.2025' THEN invm.amt_with_disc ELSE 0 END) as eylul_2025,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.10.2025' AND '31.10.2025' THEN invm.amt_with_disc ELSE 0 END) as ekim_2025,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.11.2025' AND '30.11.2025' THEN invm.amt_with_disc ELSE 0 END) as kasim_2025,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.12.2025' AND '31.12.2025' THEN invm.amt_with_disc ELSE 0 END) as aralik_2025,
+        SUM(CASE WHEN inv.doc_date BETWEEN '01.01.2025' AND '31.12.2025' THEN invm.amt_with_disc ELSE 0 END) as toplam_2025
+        
+    FROM find_entity as fe 
+    LEFT JOIN psmt_invoice_m as inv ON fe.entity_id = inv.entity_id AND inv.purchase_sales = 2
+    INNER JOIN gnld_company as firma ON firma.co_id = inv.co_id
+    INNER JOIN psmt_invoice_d as invm ON inv.invoice_m_id = invm.invoice_m_id
+    LEFT JOIN gnld_city as gc ON FE.city_id = gc.city_id 
+    LEFT JOIN gnld_town as tw ON FE.town_id = tw.town_id
+    INNER JOIN find_co_entity fce ON fe.entity_id = fce.entity_id AND firma.co_id = fce.co_id
+    INNER JOIN find_sales_person fsp ON fsp.sales_person_id = fce.sales_person_id 
+
+    WHERE firma.co_code = '@Firma@'
+        -- İPTAL faturalarını dışla (diğer kodlarda gördüğümüz gibi)
+        AND (inv.is_cancel_invoice = 0 OR inv.is_cancel_invoice IS NULL)
+        -- İADE faturalarını dışla (purchase_sales = 3 olanlar iade)
+        AND inv.purchase_sales = 2
+        -- Satır tipi kontrolü (normal satış kalemleri)
+        AND (invm.line_type = 1 OR invm.line_type IS NULL)
+        -- Miktar sıfır olmayanlar
+        AND (invm.qty != 0 OR invm.qty IS NULL)
+        
+    GROUP BY fe.entity_name, fe.entity_code, fsp.sales_person_code, gc.city_name, tw.town_name, fce.create_date
+    ORDER BY ocak_2024 desc,        
+             subat_2024 desc,
+             mart_2024 desc,
+             nisan_2024 desc,
+             mayis_2024 desc,
+             haziran_2024 desc,
+             temmuz_2024 desc,
+             agustos_2024 desc,
+             eylul_2024 desc,
+             ekim_2024 desc,
+             kasim_2024 desc,
+             aralik_2024 desc
+) as t1

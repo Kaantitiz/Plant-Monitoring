@@ -1,0 +1,44 @@
+# Netlify Deployment Configuration
+# Bu dosya Netlify'e projenizi nasıl deploy edeceğini söyler
+
+[build]
+  # Build komutu yok (statik site)
+  command = ""
+  # Tüm dosyalar root'ta
+  publish = "."
+
+# Redirects - SPA için
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers - Güvenlik ve performans
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+
+# Environment variables (opsiyonel)
+# [build.environment]
+#   ESP32_IP = "your-esp32-ip"
+

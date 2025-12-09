@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitki Yaşamı - Plant Monitoring</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Manifest only loads on HTTP/HTTPS, not file:// -->
+    <link rel="manifest" href="manifest.json?v=1.0.2" crossorigin="use-credentials">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Bitki Yaşamı">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzRDQUY1MCIvPgo8cGF0aCBkPSJNMTYgNkMxNi41IDYgMTcgNi41IDE3IDdWOUgxOUMxOS41IDkgMjAgOS41IDIwIDEwVjEyQzIwIDEyLjUgMTkuNSAxMyAxOSAxM0gxN1YxN0gxOUwyMCAxOEwxOSAxOUgxN1YxN0gxNkMxNSAxNyAxNCAxNiAxNCAxM1YxMkMxNCAxMS41IDE0LjUgMTEgMTUgMTFIMTdWN0MxNyA2LjUgMTYuNSA2IDE2IDZaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-seedling"></i> Bitki Yaşamı</h2>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="menu-item active" data-page="dashboard">
+                <a href="#dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            
+            <li class="menu-section">
+                <span class="section-title">Çiçeklerim</span>
+            </li>
+            
+            <li class="menu-item plant-item" data-plant="rose" data-page="rose-control">
+                <a href="#rose-control">
+                    <i class="fas fa-seedling rose-icon"></i>
+                    <div class="plant-info">
+                        <span class="plant-name">Gül</span>
+                        <span class="plant-status healthy">Sağlıklı</span>
+                    </div>
+                </a>
+            </li>
+            
+            <li class="menu-item plant-item" data-plant="orchid" data-page="orchid-control">
+                <a href="#orchid-control">
+                    <i class="fas fa-seedling orchid-icon"></i>
+                    <div class="plant-info">
+                        <span class="plant-name">Orkide</span>
+                        <span class="plant-status warning">Dikkat</span>
+                    </div>
+                </a>
+            </li>
+            
+            <li class="menu-item plant-item" data-plant="cactus" data-page="cactus-control">
+                <a href="#cactus-control">
+                    <i class="fas fa-seedling cactus-icon"></i>
+                    <div class="plant-info">
+                        <span class="plant-name">Kaktüs</span>
+                        <span class="plant-status healthy">Sağlıklı</span>
+                    </div>
+                </a>
+            </li>
+            
+            <li class="menu-item plant-item" data-plant="lavender" data-page="lavender-control">
+                <a href="#lavender-control">
+                    <i class="fas fa-seedling lavender-icon"></i>
+                    <div class="plant-info">
+                        <span class="plant-name">Lavanta</span>
+                        <span class="plant-status healthy">Sağlıklı</span>
+                    </div>
+                </a>
+            </li>
+            
+            <li class="menu-item plant-item" data-plant="basil" data-page="basil-control">
+                <a href="#basil-control">
+                    <i class="fas fa-seedling basil-icon"></i>
+                    <div class="plant-info">
+                        <span class="plant-name">Fesleğen</span>
+                        <span class="plant-status error">Sulama Gerekli</span>
+                    </div>
+                </a>
+            </li>
+            
+            <li class="menu-item" data-page="add-plant">
+                <a href="#add-plant">
+                    <i class="fas fa-plus"></i>
+                    <span>Yeni Çiçek Ekle</span>
+                </a>
+            </li>
+            
+            <li class="menu-item" data-page="settings">
+                <a href="#settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Ayarlar</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <h1>Plant</h1>
+            <div class="connection-status">
+                <span id="connectionStatus" class="disconnected">Bağlantı Yok</span>
+                <i class="fas fa-wifi" id="wifiIcon"></i>
+            </div>
+        </header>
+
+        <!-- Dashboard Page -->
+        <div class="page active" id="dashboard">
+            <div class="dashboard-container">
+                <!-- Dashboard Header -->
+                <div class="dashboard-header">
+                    <div class="welcome-section">
+                        <h1>Bitki Yaşamı</h1>
+                        <p>Çiçeklerinizin sağlığını takip edin ve uzaktan kontrol edin</p>
+                    </div>
+                    <div class="connection-indicator">
+                        <div class="connection-dot" id="connectionDot"></div>
+                        <span id="connectionText">Bağlantı Yok</span>
+                    </div>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="stats-overview">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>5</h3>
+                            <p>Aktif Çiçek</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>4</h3>
+                            <p>Sağlıklı</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>1</h3>
+                            <p>Dikkat</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>3</h3>
+                            <p>Sulama Gerekli</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h2>Hızlı İşlemler</h2>
+                    <div class="action-buttons">
+                        <button class="action-btn" id="waterAll">
+                            <i class="fas fa-tint"></i>
+                            <span>Tümünü Sula</span>
+                        </button>
+                        <button class="action-btn" id="lightAll">
+                            <i class="fas fa-sun"></i>
+                            <span>Işıkları Aç</span>
+                        </button>
+                        <button class="action-btn" id="checkAll">
+                            <i class="fas fa-search"></i>
+                            <span>Durum Kontrolü</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Plants Grid -->
+                <div class="plants-grid">
+                    <!-- Gül -->
+                    <div class="plant-card" data-plant="rose" data-page="rose-control">
+                        <div class="plant-image">
+                            <i class="fas fa-seedling rose-icon"></i>
+                        </div>
+                        <div class="plant-info">
+                            <h3>Gül</h3>
+                            <div class="plant-status">
+                                <span class="status-dot healthy"></span>
+                                <span class="status-text">Sağlıklı</span>
+                            </div>
+                            <div class="plant-data">
+                                <div class="data-item">
+                                    <span class="data-label">Nem</span>
+                                    <span class="data-value">75%</span>
+                                </div>
+                                <div class="data-item">
+                                    <span class="data-label">Sıcaklık</span>
+                                    <span class="data-value">24°C</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orkide -->
+                    <div class="plant-card" data-plant="orchid" data-page="orchid-control">
+                        <div class="plant-image">
+                            <i class="fas fa-seedling orchid-icon"></i>
+                        </div>
+                        <div class="plant-info">
+                            <h3>Orkide</h3>
+                            <div class="plant-status">
+                                <span class="status-dot warning"></span>
+                                <span class="status-text">Dikkat</span>
+                            </div>
+                            <div class="plant-data">
+                                <div class="data-item">
+                                    <span class="data-label">Nem</span>
+                                    <span class="data-value">45%</span>
+                                </div>
+                                <div class="data-item">
+                                    <span class="data-label">Sıcaklık</span>
+                                    <span class="data-value">28°C</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kaktüs -->
+                    <div class="plant-card" data-plant="cactus" data-page="cactus-control">
+                        <div class="plant-image">
+                            <i class="fas fa-seedling cactus-icon"></i>
+                        </div>
+                        <div class="plant-info">
+                            <h3>Kaktüs</h3>
+                            <div class="plant-status">
+                                <span class="status-dot healthy"></span>
+                                <span class="status-text">Sağlıklı</span>
+                            </div>
+                            <div class="plant-data">
+                                <div class="data-item">
+                                    <span class="data-label">Nem</span>
+                                    <span class="data-value">30%</span>
+                                </div>
+                                <div class="data-item">
+                                    <span class="data-label">Sıcaklık</span>
+                                    <span class="data-value">32°C</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lavanta -->
+                    <div class="plant-card" data-plant="lavender" data-page="lavender-control">
+                        <div class="plant-image">
+                            <i class="fas fa-seedling lavender-icon"></i>
+                        </div>
+                        <div class="plant-info">
+                            <h3>Lavanta</h3>
+                            <div class="plant-status">
+                                <span class="status-dot healthy"></span>
+                                <span class="status-text">Sağlıklı</span>
+                            </div>
+                            <div class="plant-data">
+                                <div class="data-item">
+                                    <span class="data-label">Nem</span>
+                                    <span class="data-value">60%</span>
+                                </div>
+                                <div class="data-item">
+                                    <span class="data-label">Sıcaklık</span>
+                                    <span class="data-value">22°C</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fesleğen -->
+                    <div class="plant-card" data-plant="basil" data-page="basil-control">
+                        <div class="plant-image">
+                            <i class="fas fa-seedling basil-icon"></i>
+                        </div>
+                        <div class="plant-info">
+                            <h3>Fesleğen</h3>
+                            <div class="plant-status">
+                                <span class="status-dot error"></span>
+                                <span class="status-text">Sulama Gerekli</span>
+                            </div>
+                            <div class="plant-data">
+                                <div class="data-item">
+                                    <span class="data-label">Nem</span>
+                                    <span class="data-value">20%</span>
+                                </div>
+                                <div class="data-item">
+                                    <span class="data-label">Sıcaklık</span>
+                                    <span class="data-value">26°C</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Yeni Bitki Ekle -->
+                    <div class="plant-card add-plant" data-page="add-plant">
+                        <div class="plant-image">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="plant-info">
+                            <h3>Yeni Bitki Ekle</h3>
+                            <p>Yeni bir bitki eklemek için tıklayın</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Watering Control Page -->
+        <div class="page" id="watering">
+            <div class="page-header">
+                <h2>Sulama Kontrolü</h2>
+            </div>
+            <div class="control-panel">
+                <div class="control-card">
+                    <h3>Toprak Nem Seviyesi</h3>
+                    <div class="gauge-container">
+                        <div class="gauge" id="moistureGauge">
+                            <div class="gauge-fill" style="width: 75%"></div>
+                        </div>
+                        <span class="gauge-value">75%</span>
+                    </div>
+                    <div class="control-buttons">
+                        <button class="btn btn-primary" id="waterNow">Şimdi Sula</button>
+                        <button class="btn btn-secondary" id="autoWater">Otomatik Sulama</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Humidity Control Page -->
+        <div class="page" id="humidity">
+            <div class="page-header">
+                <h2>Nem Kontrolü</h2>
+            </div>
+            <div class="control-panel">
+                <div class="control-card">
+                    <h3>Ortam Nem Seviyesi</h3>
+                    <div class="gauge-container">
+                        <div class="gauge" id="humidityGauge">
+                            <div class="gauge-fill" style="width: 60%"></div>
+                        </div>
+                        <span class="gauge-value">60%</span>
+                    </div>
+                    <div class="control-buttons">
+                        <button class="btn btn-primary" id="increaseHumidity">Nem Artır</button>
+                        <button class="btn btn-secondary" id="decreaseHumidity">Nem Azalt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Temperature Control Page -->
+        <div class="page" id="temperature">
+            <div class="page-header">
+                <h2>Sıcaklık Kontrolü</h2>
+            </div>
+            <div class="control-panel">
+                <div class="control-card">
+                    <h3>Ortam Sıcaklığı</h3>
+                    <div class="temperature-display">
+                        <div class="temp-value">26°C</div>
+                        <div class="temp-range">
+                            <span>Min: 18°C</span>
+                            <span>Max: 30°C</span>
+                        </div>
+                    </div>
+                    <div class="control-buttons">
+                        <button class="btn btn-primary" id="increaseTemp">Sıcaklık Artır</button>
+                        <button class="btn btn-secondary" id="decreaseTemp">Sıcaklık Azalt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Light Control Page -->
+        <div class="page" id="light">
+            <div class="page-header">
+                <h2>Işık Kontrolü</h2>
+            </div>
+            <div class="control-panel">
+                <div class="control-card">
+                    <h3>Işık Seviyesi</h3>
+                    <div class="gauge-container">
+                        <div class="gauge" id="lightGauge">
+                            <div class="gauge-fill" style="width: 80%"></div>
+                        </div>
+                        <span class="gauge-value">80%</span>
+                    </div>
+                    <div class="control-buttons">
+                        <button class="btn btn-primary" id="turnOnLight">Işığı Aç</button>
+                        <button class="btn btn-secondary" id="turnOffLight">Işığı Kapat</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rose Control Page -->
+        <div class="page" id="rose-control">
+            <div class="page-header">
+                <h2><i class="fas fa-seedling rose-icon"></i> Gül Kontrolü</h2>
+                <button class="back-btn" onclick="showPage('dashboard')">
+                    <i class="fas fa-arrow-left"></i> Geri
+                </button>
+            </div>
+            <div class="plant-control-panel">
+                <div class="plant-overview">
+                    <div class="plant-image-large">
+                        <i class="fas fa-seedling rose-icon"></i>
+                    </div>
+                    <div class="plant-details">
+                        <h3>Gül</h3>
+                        <p class="plant-description">Güzel kokulu çiçek, düzenli sulama ve güneş ışığı gerektirir.</p>
+                    </div>
+                </div>
+                <div class="control-sections">
+                    <div class="control-section">
+                        <h4>Toprak Nem Seviyesi</h4>
+                        <div class="gauge-container">
+                            <div class="gauge">
+                                <div class="gauge-fill" style="width: 75%"></div>
+                            </div>
+                            <span class="gauge-value">75%</span>
+                        </div>
+                        <button class="btn btn-primary">Şimdi Sula</button>
+                    </div>
+                    <div class="control-section">
+                        <h4>Sıcaklık</h4>
+                        <div class="temp-display">24°C</div>
+                        <div class="temp-controls">
+                            <button class="btn btn-secondary">Artır</button>
+                            <button class="btn btn-secondary">Azalt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orchid Control Page -->
+        <div class="page" id="orchid-control">
+            <div class="page-header">
+                <h2><i class="fas fa-seedling orchid-icon"></i> Orkide Kontrolü</h2>
+                <button class="back-btn" onclick="showPage('dashboard')">
+                    <i class="fas fa-arrow-left"></i> Geri
+                </button>
+            </div>
+            <div class="plant-control-panel">
+                <div class="plant-overview">
+                    <div class="plant-image-large">
+                        <i class="fas fa-seedling orchid-icon"></i>
+                    </div>
+                    <div class="plant-details">
+                        <h3>Orkide</h3>
+                        <p class="plant-description">Narin çiçek, yüksek nem ve düşük ışık gerektirir.</p>
+                    </div>
+                </div>
+                <div class="control-sections">
+                    <div class="control-section">
+                        <h4>Toprak Nem Seviyesi</h4>
+                        <div class="gauge-container">
+                            <div class="gauge">
+                                <div class="gauge-fill" style="width: 45%"></div>
+                            </div>
+                            <span class="gauge-value">45%</span>
+                        </div>
+                        <button class="btn btn-primary">Şimdi Sula</button>
+                    </div>
+                    <div class="control-section">
+                        <h4>Sıcaklık</h4>
+                        <div class="temp-display">28°C</div>
+                        <div class="temp-controls">
+                            <button class="btn btn-secondary">Artır</button>
+                            <button class="btn btn-secondary">Azalt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cactus Control Page -->
+        <div class="page" id="cactus-control">
+            <div class="page-header">
+                <h2><i class="fas fa-seedling cactus-icon"></i> Kaktüs Kontrolü</h2>
+                <button class="back-btn" onclick="showPage('dashboard')">
+                    <i class="fas fa-arrow-left"></i> Geri
+                </button>
+            </div>
+            <div class="plant-control-panel">
+                <div class="plant-overview">
+                    <div class="plant-image-large">
+                        <i class="fas fa-seedling cactus-icon"></i>
+                    </div>
+                    <div class="plant-details">
+                        <h3>Kaktüs</h3>
+                        <p class="plant-description">Su tasarruflu bitki, az sulama ve bol güneş gerektirir.</p>
+                    </div>
+                </div>
+                <div class="control-sections">
+                    <div class="control-section">
+                        <h4>Toprak Nem Seviyesi</h4>
+                        <div class="gauge-container">
+                            <div class="gauge">
+                                <div class="gauge-fill" style="width: 30%"></div>
+                            </div>
+                            <span class="gauge-value">30%</span>
+                        </div>
+                        <button class="btn btn-primary">Şimdi Sula</button>
+                    </div>
+                    <div class="control-section">
+                        <h4>Sıcaklık</h4>
+                        <div class="temp-display">32°C</div>
+                        <div class="temp-controls">
+                            <button class="btn btn-secondary">Artır</button>
+                            <button class="btn btn-secondary">Azalt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lavender Control Page -->
+        <div class="page" id="lavender-control">
+            <div class="page-header">
+                <h2><i class="fas fa-seedling lavender-icon"></i> Lavanta Kontrolü</h2>
+                <button class="back-btn" onclick="showPage('dashboard')">
+                    <i class="fas fa-arrow-left"></i> Geri
+                </button>
+            </div>
+            <div class="plant-control-panel">
+                <div class="plant-overview">
+                    <div class="plant-image-large">
+                        <i class="fas fa-seedling lavender-icon"></i>
+                    </div>
+                    <div class="plant-details">
+                        <h3>Lavanta</h3>
+                        <p class="plant-description">Kokulu bitki, orta nem ve güneş ışığı gerektirir.</p>
+                    </div>
+                </div>
+                <div class="control-sections">
+                    <div class="control-section">
+                        <h4>Toprak Nem Seviyesi</h4>
+                        <div class="gauge-container">
+                            <div class="gauge">
+                                <div class="gauge-fill" style="width: 60%"></div>
+                            </div>
+                            <span class="gauge-value">60%</span>
+                        </div>
+                        <button class="btn btn-primary">Şimdi Sula</button>
+                    </div>
+                    <div class="control-section">
+                        <h4>Sıcaklık</h4>
+                        <div class="temp-display">22°C</div>
+                        <div class="temp-controls">
+                            <button class="btn btn-secondary">Artır</button>
+                            <button class="btn btn-secondary">Azalt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Basil Control Page -->
+        <div class="page" id="basil-control">
+            <div class="page-header">
+                <h2><i class="fas fa-seedling basil-icon"></i> Fesleğen Kontrolü</h2>
+                <button class="back-btn" onclick="showPage('dashboard')">
+                    <i class="fas fa-arrow-left"></i> Geri
+                </button>
+            </div>
+            <div class="plant-control-panel">
+                <div class="plant-overview">
+                    <div class="plant-image-large">
+                        <i class="fas fa-seedling basil-icon"></i>
+                    </div>
+                    <div class="plant-details">
+                        <h3>Fesleğen</h3>
+                        <p class="plant-description">Mutfak bitkisi, düzenli sulama ve ılık sıcaklık gerektirir.</p>
+                    </div>
+                </div>
+                <div class="control-sections">
+                    <div class="control-section">
+                        <h4>Toprak Nem Seviyesi</h4>
+                        <div class="gauge-container">
+                            <div class="gauge">
+                                <div class="gauge-fill" style="width: 20%"></div>
+                            </div>
+                            <span class="gauge-value">20%</span>
+                        </div>
+                        <button class="btn btn-primary">Acil Sulama</button>
+                    </div>
+                    <div class="control-section">
+                        <h4>Sıcaklık</h4>
+                        <div class="temp-display">26°C</div>
+                        <div class="temp-controls">
+                            <button class="btn btn-secondary">Artır</button>
+                            <button class="btn btn-secondary">Azalt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Plant Page -->
+        <div class="page" id="add-plant">
+            <div class="page-header">
+                <h2>Yeni Bitki Ekle</h2>
+                <button class="back-btn" onclick="showPage('dashboard')">
+                    <i class="fas fa-arrow-left"></i> Geri
+                </button>
+            </div>
+            <div class="add-plant-panel">
+                <div class="add-plant-form">
+                    <h3>Yeni Bitki Bilgileri</h3>
+                    <form>
+                        <div class="form-group">
+                            <label>Bitki Adı</label>
+                            <input type="text" placeholder="Örn: Menekşe">
+                        </div>
+                        <div class="form-group">
+                            <label>Bitki Türü</label>
+                            <select>
+                                <option>İç Mekan</option>
+                                <option>Dış Mekan</option>
+                                <option>Mutfak Bitkisi</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Sulama Sıklığı</label>
+                            <select>
+                                <option>Günlük</option>
+                                <option>2-3 Günde Bir</option>
+                                <option>Haftalık</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Bitki Ekle</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- General Status Page -->
+        <div class="page" id="general-status">
+            <div class="page-header">
+                <h2><i class="fas fa-seedling"></i> Genel Durum</h2>
+                <p>Tüm çiçeklerinizin durumunu görüntüleyin</p>
+            </div>
+            <div class="plants-status-grid">
+                <!-- Gül -->
+                <div class="plant-status-card" data-plant="rose" data-page="rose-control">
+                    <div class="plant-status-header">
+                        <div class="plant-icon">
+                            <i class="fas fa-seedling rose-icon"></i>
+                        </div>
+                        <div class="plant-info">
+                            <h3>Gül</h3>
+                            <span class="plant-status healthy">Sağlıklı</span>
+                        </div>
+                        <div class="plant-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    <div class="plant-status-data">
+                        <div class="data-row">
+                            <span class="data-label">Nem</span>
+                            <span class="data-value">75%</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Sıcaklık</span>
+                            <span class="data-value">24°C</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Işık</span>
+                            <span class="data-value">850 lux</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orkide -->
+                <div class="plant-status-card" data-plant="orchid" data-page="orchid-control">
+                    <div class="plant-status-header">
+                        <div class="plant-icon">
+                            <i class="fas fa-seedling orchid-icon"></i>
+                        </div>
+                        <div class="plant-info">
+                            <h3>Orkide</h3>
+                            <span class="plant-status warning">Dikkat</span>
+                        </div>
+                        <div class="plant-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    <div class="plant-status-data">
+                        <div class="data-row">
+                            <span class="data-label">Nem</span>
+                            <span class="data-value">45%</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Sıcaklık</span>
+                            <span class="data-value">28°C</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Işık</span>
+                            <span class="data-value">320 lux</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kaktüs -->
+                <div class="plant-status-card" data-plant="cactus" data-page="cactus-control">
+                    <div class="plant-status-header">
+                        <div class="plant-icon">
+                            <i class="fas fa-seedling cactus-icon"></i>
+                        </div>
+                        <div class="plant-info">
+                            <h3>Kaktüs</h3>
+                            <span class="plant-status healthy">Sağlıklı</span>
+                        </div>
+                        <div class="plant-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    <div class="plant-status-data">
+                        <div class="data-row">
+                            <span class="data-label">Nem</span>
+                            <span class="data-value">30%</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Sıcaklık</span>
+                            <span class="data-value">32°C</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Işık</span>
+                            <span class="data-value">1200 lux</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lavanta -->
+                <div class="plant-status-card" data-plant="lavender" data-page="lavender-control">
+                    <div class="plant-status-header">
+                        <div class="plant-icon">
+                            <i class="fas fa-seedling lavender-icon"></i>
+                        </div>
+                        <div class="plant-info">
+                            <h3>Lavanta</h3>
+                            <span class="plant-status healthy">Sağlıklı</span>
+                        </div>
+                        <div class="plant-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    <div class="plant-status-data">
+                        <div class="data-row">
+                            <span class="data-label">Nem</span>
+                            <span class="data-value">60%</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Sıcaklık</span>
+                            <span class="data-value">22°C</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Işık</span>
+                            <span class="data-value">950 lux</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fesleğen -->
+                <div class="plant-status-card" data-plant="basil" data-page="basil-control">
+                    <div class="plant-status-header">
+                        <div class="plant-icon">
+                            <i class="fas fa-seedling basil-icon"></i>
+                        </div>
+                        <div class="plant-info">
+                            <h3>Fesleğen</h3>
+                            <span class="plant-status error">Sulama Gerekli</span>
+                        </div>
+                        <div class="plant-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    <div class="plant-status-data">
+                        <div class="data-row">
+                            <span class="data-label">Nem</span>
+                            <span class="data-value">20%</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Sıcaklık</span>
+                            <span class="data-value">26°C</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Işık</span>
+                            <span class="data-value">680 lux</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="page" id="settings">
+            <div class="page-header">
+                <h2><i class="fas fa-cog"></i> Ayarlar</h2>
+                <p>Sistem ve bağlantı ayarlarınızı yönetin</p>
+            </div>
+            <div class="settings-panel">
+                <!-- ESP32 Bağlantı Ayarları -->
+                <div class="settings-card">
+                    <h3><i class="fas fa-wifi"></i> ESP32 Bağlantı Ayarları</h3>
+                    <div class="setting-item">
+                        <label for="esp32IP">ESP32 IP Adresi</label>
+                        <input type="text" id="esp32IP" value="192.168.1.100" placeholder="192.168.1.100">
+                        <small>ESP32'nizin IP adresini girin</small>
+                    </div>
+                    <div class="setting-item">
+                        <label for="websocketPort">WebSocket Port</label>
+                        <input type="number" id="websocketPort" value="81" placeholder="81">
+                        <small>WebSocket bağlantı portu (varsayılan: 81)</small>
+                    </div>
+                    <div class="setting-item">
+                        <label>Bağlantı Durumu</label>
+                        <div class="connection-status-display">
+                            <div class="connection-status-row">
+                                <span id="connectionStatusDisplay" class="disconnected">Bağlantı Yok</span>
+                                <button class="btn btn-secondary" id="testConnection">Bağlantıyı Test Et</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sistem Ayarları -->
+                <div class="settings-card">
+                    <h3><i class="fas fa-cogs"></i> Sistem Ayarları</h3>
+                    <div class="setting-item checkbox-item">
+                        <input type="checkbox" id="autoWatering" checked>
+                        <label for="autoWatering">Otomatik Sulama</label>
+                        <small>ESP32'de otomatik sulama sistemi</small>
+                    </div>
+                    <div class="setting-item checkbox-item">
+                        <input type="checkbox" id="notifications" checked>
+                        <label for="notifications">Bildirimler</label>
+                        <small>Uyarı ve bilgilendirme mesajları</small>
+                    </div>
+                    <div class="setting-item">
+                        <label for="updateFrequency">Veri Güncelleme Sıklığı</label>
+                        <select id="updateFrequency">
+                            <option value="5">5 saniye</option>
+                            <option value="10" selected>10 saniye</option>
+                            <option value="30">30 saniye</option>
+                            <option value="60">1 dakika</option>
+                        </select>
+                        <small>Sensör verilerinin güncellenme sıklığı</small>
+                    </div>
+                </div>
+
+                <!-- Uygulama Ayarları -->
+                <div class="settings-card">
+                    <h3><i class="fas fa-mobile-alt"></i> Uygulama Ayarları</h3>
+                    <div class="setting-item">
+                        <label for="theme">Tema</label>
+                        <select id="theme">
+                            <option value="light" selected>Açık Tema</option>
+                            <option value="dark">Koyu Tema</option>
+                            <option value="auto">Otomatik</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="language">Dil</label>
+                        <select id="language">
+                            <option value="tr" selected>Türkçe</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Veri Sıfırlama</label>
+                        <button class="btn-danger" id="resetData">Tüm Verileri Sıfırla</button>
+                        <small>Dikkat: Bu işlem geri alınamaz!</small>
+                    </div>
+                </div>
+
+                <!-- Gelişmiş Ayarlar -->
+                <div class="settings-card">
+                    <h3><i class="fas fa-tools"></i> Gelişmiş Ayarlar</h3>
+                    <div class="setting-item checkbox-item">
+                        <input type="checkbox" id="debugMode">
+                        <label for="debugMode">Debug Modu</label>
+                        <small>Gelişmiş hata ayıklama ve loglama</small>
+                    </div>
+                    <div class="setting-item checkbox-item">
+                        <input type="checkbox" id="autoBackup" checked>
+                        <label for="autoBackup">Otomatik Yedekleme</label>
+                        <small>Ayarları otomatik olarak yedekle</small>
+                    </div>
+                    <div class="setting-item">
+                        <label for="cacheSize">Önbellek Boyutu</label>
+                        <select id="cacheSize">
+                            <option value="50">50 MB</option>
+                            <option value="100" selected>100 MB</option>
+                            <option value="200">200 MB</option>
+                            <option value="500">500 MB</option>
+                        </select>
+                        <small>Uygulama önbellek boyutu</small>
+                    </div>
+                </div>
+
+                <!-- Bitki Ayarları -->
+                <div class="settings-card">
+                    <h3><i class="fas fa-seedling"></i> Bitki Ayarları</h3>
+                    <div class="setting-item">
+                        <label for="plantCount">Maksimum Bitki Sayısı</label>
+                        <input type="number" id="plantCount" value="10" min="1" max="50">
+                        <small>Ekleyebileceğiniz maksimum bitki sayısı</small>
+                    </div>
+                    <div class="setting-item checkbox-item">
+                        <input type="checkbox" id="autoPlantDetection" checked>
+                        <label for="autoPlantDetection">Otomatik Bitki Tanıma</label>
+                        <small>Yeni eklenen bitkileri otomatik tanı</small>
+                    </div>
+                    <div class="setting-item checkbox-item">
+                        <input type="checkbox" id="plantCareReminders" checked>
+                        <label for="plantCareReminders">Bitki Bakım Hatırlatıcıları</label>
+                        <small>Düzenli bakım için hatırlatıcılar</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+        <a href="#dashboard" class="nav-item active" data-page="dashboard">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="#general-status" class="nav-item" data-page="general-status">
+            <i class="fas fa-seedling"></i>
+            <span>Genel Durum</span>
+        </a>
+        <a href="#settings" class="nav-item" data-page="settings">
+            <i class="fas fa-cog"></i>
+            <span>Ayarlar</span>
+        </a>
+    </nav>
+
+    <script src="script.js"></script>
+</body>
+</html>
