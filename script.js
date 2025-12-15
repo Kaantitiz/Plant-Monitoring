@@ -106,7 +106,15 @@ async function fetchStatus() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 saniye timeout
         
-        const res = await fetch(`${apiBase()}/status`, { 
+        const base = apiBase();
+        const url = `${base}/status`;
+        
+        // Debug: Netlify'da hangi URL kullanılıyor?
+        if (connectionErrorCount === 0 || connectionErrorCount === 1) {
+            console.log('ESP32 istek URL:', url);
+        }
+        
+        const res = await fetch(url, { 
             method: 'GET', 
             cache: 'no-store',
             signal: controller.signal
@@ -115,6 +123,21 @@ async function fetchStatus() {
         clearTimeout(timeoutId);
         
         if (!res.ok) throw new Error('Status HTTP ' + res.status);
+        
+        // Response tipini kontrol et
+        const contentType = res.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+            // HTML dönüyorsa, response'u oku ve göster
+            const text = await res.text();
+            console.error('JSON beklenirken HTML döndü:', {
+                url: url,
+                status: res.status,
+                contentType: contentType,
+                preview: text.substring(0, 200)
+            });
+            throw new Error('Yanlış endpoint - HTML döndü. Netlify Function çalışmıyor olabilir.');
+        }
+        
         const data = await res.json();
         // ESP JSON alanları: temp, hum, soilAnalog, soilPercent, threshold, pumpForced, pumpState, ledManual, servoAngle
         plantData.temperature = data.temp ?? plantData.temperature;

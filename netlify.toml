@@ -7,7 +7,14 @@
   # Tüm dosyalar root'ta
   publish = "."
 
-# Redirects - SPA için
+# Redirect API calls to function (SPA redirect'inden ÖNCE olmalı - en üstte)
+[[redirects]]
+  from = "/api/esp32/*"
+  to = "/.netlify/functions/esp32-proxy/:splat"
+  status = 200
+  force = true
+
+# Redirects - SPA için (catch-all, en son)
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -50,12 +57,4 @@
 # Build environment
 [build.environment]
   NODE_VERSION = "18"
-  
-# Redirect API calls to function
-# :splat ile path'i function path'ine ekle
-[[redirects]]
-  from = "/api/esp32/*"
-  to = "/.netlify/functions/esp32-proxy/:splat"
-  status = 200
-  force = true
 
