@@ -22,7 +22,7 @@ exports.handler = async (event, context) => {
   try {
     // ESP32 IP adresi - Environment variable'dan veya default değer
     const ESP32_IP = process.env.ESP32_IP || '172.20.10.7';
-    const ESP32_PORT = process.env.ESP32_PORT || '80';
+    const ESP32_PORT = process.env.ESP32_PORT || '8080'; // Port 80 çakışıyor, 8080 kullanıyoruz
     const ESP32_BASE = `http://${ESP32_IP}:${ESP32_PORT}`;
 
     // URL path'i al

@@ -26,7 +26,7 @@ let plantData = {
 // Bağlantı (HTTP REST)
 let statusTimer = null;
 const DEFAULT_ESP32_IP = "172.20.10.7"; // varsayılan IP
-const DEFAULT_HTTP_PORT = 80;
+const DEFAULT_HTTP_PORT = 8080; // Port 80 çakışıyor, 8080 kullanıyoruz
 let moistureThreshold = 30; // ESP32'den okunur
 let apiBaseOverride = localStorage.getItem('apiBase') || '';
 let loggedIn = false;
@@ -107,6 +107,13 @@ async function fetchStatus() {
         plantData.status = plantData.waterPumpOn ? 'Sulama' : 'Sağlıklı';
         plantData.connected = true;
         connectionErrorCount = 0; // Başarılı bağlantı - sayacı sıfırla
+        
+        // Bağlantı başarılı oldu, polling'i hızlı moda geçir
+        if (statusTimer) {
+            clearInterval(statusTimer);
+            startStatusPolling(); // Yeniden başlat (hızlı mod)
+        }
+        
         updateConnectionStatus();
         updateDashboard();
         updateGauges();
@@ -114,6 +121,7 @@ async function fetchStatus() {
         updateSidebarPlantStatuses();
         updateLEDStatus();
         updateServoDisplay();
+        renderUserPlants(); // Çiçek kartlarını ESP32 verileriyle güncelle
     } catch (err) {
         connectionErrorCount++;
         const now = Date.now();
@@ -128,8 +136,8 @@ async function fetchStatus() {
             lastErrorTime = now;
         }
         // Sessiz mod: Konsol spam'ini durdur, sadece ilk hatada ve 30 saniyede bir log göster
-        plantData.connected = false;
-        updateConnectionStatus();
+            plantData.connected = false;
+            updateConnectionStatus();
     }
 }
 
@@ -189,7 +197,23 @@ async function sendCommandToESP32(command, data = {}) {
 function startStatusPolling() {
     if (statusTimer) clearInterval(statusTimer);
     fetchStatus(); // hemen bir kez
-    statusTimer = setInterval(fetchStatus, 5000); // 5 sn'de bir
+    
+    // Bağlantı durumuna göre polling hızını ayarla
+    let pollInterval = 5000; // 5 saniye (bağlantı varsa)
+    
+    // Bağlantı yoksa daha uzun aralıklarla dene (30 saniye)
+    if (!plantData.connected && connectionErrorCount > 3) {
+        pollInterval = 30000; // 30 saniye
+    }
+    
+    statusTimer = setInterval(() => {
+        fetchStatus();
+        // Bağlantı başarılı olursa hızı artır
+        if (plantData.connected && pollInterval > 5000) {
+            clearInterval(statusTimer);
+            startStatusPolling(); // Yeniden başlat (hızlı mod)
+        }
+    }, pollInterval);
 }
 
 // --- Login ---
@@ -213,9 +237,9 @@ function setupLogin() {
             localStorage.setItem('panelLoggedIn', 'true');
             overlay?.classList.remove('active');
             errorBox.style.display = 'none';
-        } else {
+    } else {
             errorBox.style.display = 'block';
-        }
+    }
     });
 }
 
@@ -225,9 +249,36 @@ function updateConnectionStatus() {
     const connectionText = document.getElementById('connectionText');
     const connectionStatusDisplay = document.getElementById('connectionStatusDisplay');
     
+    // ESP32 IP adresini al
+    const esp32IP = window.ESP32_IP || DEFAULT_ESP32_IP;
+    const base = apiBase();
+    const isNetlify = window.location.hostname.includes('netlify.app') || 
+                      window.location.hostname.includes('netlify.com') ||
+                      window.location.protocol === 'https:';
+    
+    let statusText = '';
+    let statusDetail = '';
+    
+    if (plantData.connected) {
+        statusText = 'ESP32 Bağlı';
+        if (isNetlify) {
+            statusDetail = 'Netlify Proxy üzerinden';
+        } else {
+            statusDetail = `IP: ${esp32IP}`;
+        }
+    } else {
+        statusText = 'ESP32 Bağlantı Yok';
+        if (isNetlify) {
+            statusDetail = 'Proxy bağlantısı kurulamadı';
+        } else {
+            statusDetail = `IP: ${esp32IP} - Erişilemiyor`;
+        }
+    }
+    
     if (statusElement) {
-        statusElement.textContent = plantData.connected ? 'Bağlı' : 'Bağlantı Yok';
+        statusElement.textContent = statusText;
         statusElement.className = plantData.connected ? 'connected' : 'disconnected';
+        statusElement.title = statusDetail;
     }
     
     if (connectionDot) {
@@ -235,12 +286,14 @@ function updateConnectionStatus() {
     }
     
     if (connectionText) {
-        connectionText.textContent = plantData.connected ? 'Bağlı' : 'Bağlantı Yok';
+        connectionText.textContent = statusText;
+        connectionText.title = statusDetail;
     }
     
     if (connectionStatusDisplay) {
-        connectionStatusDisplay.textContent = plantData.connected ? 'Bağlı' : 'Bağlantı Yok';
+        connectionStatusDisplay.textContent = statusText;
         connectionStatusDisplay.className = plantData.connected ? 'connected' : 'disconnected';
+        connectionStatusDisplay.title = statusDetail;
     }
 }
 
@@ -383,6 +436,66 @@ function updateDashboard() {
     const temperatureElement = document.getElementById('temperature');
     if (temperatureElement) {
         temperatureElement.textContent = plantData.temperature + '°';
+    }
+    
+    // Update stat cards
+    updateStatCards();
+}
+
+function updateStatCards() {
+    const plants = getPlants();
+    const activePlantsCount = plants.length;
+    
+    // Stat kartlarını güncelle
+    const statActivePlantsValue = document.getElementById('statActivePlantsValue');
+    if (statActivePlantsValue) {
+        statActivePlantsValue.textContent = activePlantsCount;
+    }
+    
+    // Sağlıklı, dikkat ve sulama gereken çiçek sayılarını hesapla
+    let healthyCount = 0;
+    let warningCount = 0;
+    let wateringCount = 0;
+    
+    plants.forEach(plant => {
+        if (plant.status === 'healthy') {
+            healthyCount++;
+        } else if (plant.status === 'warning') {
+            warningCount++;
+        } else if (plant.status === 'error' || plant.soilMoisture < 30) {
+            wateringCount++;
+        } else if (plant.soilMoisture >= 30 && plant.soilMoisture < 50) {
+            warningCount++;
+        } else {
+            healthyCount++;
+        }
+    });
+    
+    // ESP32 bağlantısı varsa, gerçek verileri kullan
+    if (plantData.connected) {
+        // ESP32'den gelen verilere göre güncelle
+        if (plantData.soilMoisture < 30) {
+            wateringCount = Math.max(wateringCount, 1);
+        } else if (plantData.soilMoisture < 50) {
+            warningCount = Math.max(warningCount, 1);
+        } else {
+            healthyCount = Math.max(healthyCount, 1);
+        }
+    }
+    
+    const statHealthyValue = document.getElementById('statHealthyValue');
+    if (statHealthyValue) {
+        statHealthyValue.textContent = healthyCount;
+    }
+    
+    const statWarningValue = document.getElementById('statWarningValue');
+    if (statWarningValue) {
+        statWarningValue.textContent = warningCount;
+    }
+    
+    const statWateringValue = document.getElementById('statWateringValue');
+    if (statWateringValue) {
+        statWateringValue.textContent = wateringCount;
     }
 }
 
@@ -1176,10 +1289,38 @@ function renderUserPlants() {
         card.className = 'plant-card user-plant-card';
         card.setAttribute('data-plant-id', plant.id);
         
-        const statusClass = plant.status === 'healthy' ? 'healthy' : 
-                           plant.status === 'warning' ? 'warning' : 'error';
-        const statusText = plant.status === 'healthy' ? 'Sağlıklı' :
-                          plant.status === 'warning' ? 'Dikkat' : 'Sulama Gerekli';
+        // ESP32 bağlantısı varsa gerçek verileri kullan, yoksa kayıtlı verileri
+        let displayMoisture = plant.soilMoisture;
+        let displayTemp = plant.temperature;
+        
+        if (plantData.connected) {
+            // ESP32'den gelen gerçek verileri kullan
+            displayMoisture = Math.round(plantData.soilMoisture);
+            displayTemp = Math.round(plantData.temperature);
+            
+            // Çiçek verilerini güncelle
+            plant.soilMoisture = displayMoisture;
+            plant.temperature = displayTemp;
+            savePlants(plants); // Güncellenmiş verileri kaydet
+        }
+        
+        // Durumu belirle (ESP32 verilerine göre)
+        let statusClass = 'healthy';
+        let statusText = 'Sağlıklı';
+        
+        if (displayMoisture < 30) {
+            statusClass = 'error';
+            statusText = 'Sulama Gerekli';
+            plant.status = 'error';
+        } else if (displayMoisture < 50) {
+            statusClass = 'warning';
+            statusText = 'Dikkat';
+            plant.status = 'warning';
+        } else {
+            statusClass = 'healthy';
+            statusText = 'Sağlıklı';
+            plant.status = 'healthy';
+        }
         
         card.innerHTML = `
             <div class="plant-image">
@@ -1194,11 +1335,11 @@ function renderUserPlants() {
                 <div class="plant-data">
                     <div class="data-item">
                         <span class="data-label">Nem</span>
-                        <span class="data-value">${plant.soilMoisture}%</span>
+                        <span class="data-value">${displayMoisture}%</span>
                     </div>
                     <div class="data-item">
                         <span class="data-label">Sıcaklık</span>
-                        <span class="data-value">${plant.temperature}°C</span>
+                        <span class="data-value">${displayTemp}°C</span>
                     </div>
                 </div>
                 <div class="plant-actions">
@@ -1236,6 +1377,9 @@ function renderUserPlants() {
     
     // Sil butonları için event listener'ları ekle
     setupDeleteButtons();
+    
+    // Stat kartlarını güncelle
+    updateStatCards();
 }
 
 function deletePlant(plantId) {

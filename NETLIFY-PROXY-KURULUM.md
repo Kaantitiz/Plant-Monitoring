@@ -16,7 +16,7 @@ Netlify Dashboard → Site settings → Environment variables:
 
 ```
 ESP32_IP = 172.20.10.7
-ESP32_PORT = 80
+ESP32_PORT = 8080
 ```
 
 **Not:** ESP32'niz farklı bir IP'deyse, bu değeri güncelleyin.
@@ -50,7 +50,7 @@ Netlify'da deploy işlemi otomatik olarak:
 Web App (HTTPS) 
   → /api/esp32/status
     → Netlify Function (esp32-proxy)
-      → ESP32 (http://172.20.10.7:80/status)
+      → ESP32 (http://172.20.10.7:8080/status)
         → Response geri döner
 ```
 
@@ -59,7 +59,7 @@ Web App (HTTPS)
 Web uygulaması otomatik olarak:
 
 - **Netlify'da (HTTPS):** `/api/esp32/status` kullanır
-- **Lokal (HTTP):** `http://172.20.10.7:80/status` kullanır
+- **Lokal (HTTP):** `http://172.20.10.7:8080/status` kullanır
 
 ## ⚙️ Konfigürasyon
 

@@ -141,9 +141,15 @@ Detaylar: [GIT-DEPLOY-REHBERI.md](GIT-DEPLOY-REHBERI.md)
 
 ## 📚 Dokümantasyon
 
-- [ESP32 Bağlantı Sorun Giderme](ESP32-BAGLANTI-SORUN-GIDERME.md)
-- [Git Deploy Rehberi](GIT-DEPLOY-REHBERI.md)
-- [Netlify Proxy Kurulum](NETLIFY-PROXY-KURULUM.md)
+### Hızlı Başlangıç
+- [⚡ Netlify'dan ESP32 Kontrol - Hızlı Başlangıç](HIZLI-BASLANGIC-NETLIFY.md) - 5 dakikada kurulum
+
+### Detaylı Rehberler
+- [🌐 Netlify'dan ESP32 Kontrol Rehberi](NETLIFY-ESP32-KONTROL-REHBERI.md) - Detaylı kurulum ve kullanım
+- [🔧 ESP32 Bağlantı Sorun Giderme](ESP32-BAGLANTI-SORUN-GIDERME.md) - Sorun giderme
+- [🚀 Git Deploy Rehberi](GIT-DEPLOY-REHBERI.md) - Git'e yükleme
+- [🔗 Netlify Proxy Kurulum](NETLIFY-PROXY-KURULUM.md) - Proxy yapılandırması
+- [📡 Canlı Sistemde ESP32 Bağlantısı](CANLI-SISTEM-ESP32-BAGLANTI.md) - Canlı sistem ayarları
 
 ---
 
