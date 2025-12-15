@@ -42,3 +42,20 @@
 # [build.environment]
 #   ESP32_IP = "your-esp32-ip"
 
+# Functions configuration
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["netlify/functions/**"]
+  
+# Build environment
+[build.environment]
+  NODE_VERSION = "18"
+  
+# Redirect API calls to function
+# :splat ile path'i function path'ine ekle
+[[redirects]]
+  from = "/api/esp32/*"
+  to = "/.netlify/functions/esp32-proxy/:splat"
+  status = 200
+  force = true
+

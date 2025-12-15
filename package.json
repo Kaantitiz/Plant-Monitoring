@@ -1,0 +1,20 @@
+{
+  "name": "akilli-saksi-web",
+  "version": "1.0.0",
+  "description": "Akıllı Saksı Web Uygulaması - ESP32 Kontrol Paneli",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required for static site'"
+  },
+  "keywords": [
+    "esp32",
+    "iot",
+    "plant-monitoring"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}
+

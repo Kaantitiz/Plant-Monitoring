@@ -14,6 +14,91 @@ body {
     min-height: 100vh;
 }
 
+/* Hide default plant grids (kullanıcı çiçekleri gösterilecek) */
+.plants-status-grid,
+.plant-status-card {
+    display: none !important;
+}
+
+/* Show plants grid and add-plant card */
+.plants-grid {
+    display: grid !important;
+}
+
+.plant-card.add-plant {
+    display: flex !important;
+}
+
+.user-plant-card {
+    display: block !important;
+}
+
+.empty-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    text-align: center;
+    color: #374151;
+}
+.empty-card i {
+    font-size: 28px;
+    color: #4CAF50;
+    margin-bottom: 8px;
+}
+
+/* Login overlay */
+.login-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+.login-overlay.active {
+    display: flex;
+}
+.login-card {
+    background: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+    width: 320px;
+    text-align: center;
+}
+.login-card h2 {
+    margin: 0 0 8px;
+}
+.login-card p {
+    margin: 0 0 16px;
+    color: #4b5563;
+}
+.login-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.login-card input {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+}
+.login-card .btn {
+    width: 100%;
+}
+.login-hint {
+    font-size: 12px;
+    color: #6b7280;
+}
+.login-error {
+    margin-top: 8px;
+    color: #b91c1c;
+    font-size: 13px;
+}
+
 /* Sidebar Styles */
 .sidebar {
     position: fixed;
@@ -1012,6 +1097,35 @@ body {
     font-size: 1.2rem;
     font-weight: 600;
     color: #4CAF50;
+}
+
+.plant-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: #f44336;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.btn-icon:hover {
+    background: #ffebee;
+    transform: scale(1.1);
+}
+
+.btn-icon.delete-plant:hover {
+    color: #d32f2f;
 }
 
 /* Plant Control Pages */
