@@ -717,8 +717,9 @@
                     </div>
                     <div class="setting-item">
                         <label for="apiBase">API Adresi (Opsiyonel)</label>
-                        <input type="text" id="apiBase" placeholder="https://tunnel.example.com veya http://192.168.x.x">
-                        <small>HTTPS tünel/proxy kullanıyorsanız tam URL girin; boşsa IP/port kullanılır.</small>
+                        <input type="text" id="apiBase" placeholder="Boş bırakın (Netlify otomatik kullanır)">
+                        <small><strong>Netlify'da:</strong> Bu alanı <strong>BOŞ BIRAKIN</strong> - Otomatik olarak /api/esp32 kullanılır.<br>
+                        <strong>Lokal geliştirme:</strong> Özel proxy/tünel kullanıyorsanız tam URL girin (örn: http://192.168.1.100:8080)</small>
                     </div>
                     <div class="setting-item">
                         <label>Bağlantı Durumu</label>

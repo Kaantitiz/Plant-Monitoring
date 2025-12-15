@@ -36,6 +36,21 @@ const ERROR_LOG_INTERVAL = 30000; // 30 saniyede bir log göster
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    // Netlify'da ise API Base'i kontrol et ve temizle
+    const isNetlify = window.location.hostname.includes('netlify.app') || 
+                      window.location.hostname.includes('netlify.com') ||
+                      window.location.protocol === 'https:';
+    
+    if (isNetlify) {
+        const savedBase = localStorage.getItem('apiBase');
+        // Eğer Netlify site URL'si girilmişse temizle
+        if (savedBase && (savedBase.includes('netlify.app') || savedBase.includes('netlify.com'))) {
+            localStorage.removeItem('apiBase');
+            apiBaseOverride = '';
+            console.log('Netlify algılandı: API Base temizlendi (otomatik /api/esp32 kullanılacak)');
+        }
+    }
+    
     setupLogin();
     initializeApp();
     startStatusPolling();
@@ -62,18 +77,23 @@ function initializeApp() {
 
 // HTTP tabanlı status/komut
 function apiBase() {
-    // Manuel override varsa onu kullan
-    if (apiBaseOverride) return apiBaseOverride;
-    
     // Netlify'da mıyız? (HTTPS için proxy kullan)
     const isNetlify = window.location.hostname.includes('netlify.app') || 
                       window.location.hostname.includes('netlify.com') ||
                       window.location.protocol === 'https:';
     
+    // Netlify'da ise otomatik olarak Function proxy kullan (override'ı yok say)
     if (isNetlify) {
+        // Eğer override varsa ve path ise (örn: /api/esp32) kullan, yoksa otomatik
+        if (apiBaseOverride && apiBaseOverride.startsWith('/')) {
+            return apiBaseOverride;
+        }
         // Netlify Function proxy kullan
         return '/api/esp32';
     }
+    
+    // Netlify dışında: Manuel override varsa onu kullan
+    if (apiBaseOverride) return apiBaseOverride;
     
     // Lokal geliştirme: direkt ESP32 IP
     const ip = window.ESP32_IP || DEFAULT_ESP32_IP;
@@ -649,17 +669,52 @@ function setupSettingsPage() {
 
     // API Base (örn: https://tunnel.example.com veya http://192.168.x.x)
     if (apiBaseInput) {
-        const savedBase = localStorage.getItem('apiBase');
-        if (savedBase) {
-            apiBaseInput.value = savedBase;
-            apiBaseOverride = savedBase;
+        const isNetlify = window.location.hostname.includes('netlify.app') || 
+                          window.location.hostname.includes('netlify.com') ||
+                          window.location.protocol === 'https:';
+        
+        // Netlify'da ise API Base'i temizle (otomatik kullanılacak)
+        if (isNetlify) {
+            const savedBase = localStorage.getItem('apiBase');
+            // Eğer Netlify site URL'si girilmişse temizle
+            if (savedBase && (savedBase.includes('netlify.app') || savedBase.includes('netlify.com'))) {
+                localStorage.removeItem('apiBase');
+                apiBaseInput.value = '';
+                apiBaseOverride = '';
+                showMessage('Netlify\'da API adresi otomatik kullanılır. Alan temizlendi.', 'info');
+            } else if (savedBase && !savedBase.startsWith('/')) {
+                // Path değilse (tam URL) uyarı ver
+                showMessage('Netlify\'da bu alanı boş bırakın veya sadece path girin (örn: /api/esp32)', 'warning');
+            }
+        } else {
+            const savedBase = localStorage.getItem('apiBase');
+            if (savedBase) {
+                apiBaseInput.value = savedBase;
+                apiBaseOverride = savedBase;
+            }
         }
+        
         apiBaseInput.addEventListener('change', function() {
             const val = this.value.trim();
+            
+            // Netlify'da site URL'si girilmişse uyarı ver ve temizle
+            if (isNetlify && val && (val.includes('netlify.app') || val.includes('netlify.com'))) {
+                this.value = '';
+                apiBaseOverride = '';
+                localStorage.removeItem('apiBase');
+                showMessage('Netlify\'da bu alanı boş bırakın! Otomatik olarak /api/esp32 kullanılır.', 'error');
+                return;
+            }
+            
+            // Netlify'da path değilse (tam URL) uyarı ver
+            if (isNetlify && val && !val.startsWith('/') && !val.startsWith('http://localhost')) {
+                showMessage('Netlify\'da sadece path girin (örn: /api/esp32) veya boş bırakın', 'warning');
+            }
+            
             apiBaseOverride = val;
             if (val) localStorage.setItem('apiBase', val);
             else localStorage.removeItem('apiBase');
-            showMessage(`API adresi güncellendi: ${val || '(varsayılan IP/port)'}`, 'success');
+            showMessage(`API adresi güncellendi: ${val || '(otomatik)'}`, 'success');
             startStatusPolling();
         });
     }
